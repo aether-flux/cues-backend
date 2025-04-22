@@ -1,4 +1,5 @@
 const { PrismaClient } = require("../generated/prisma");
+const { errorHandler } = require("../utils/errorHandler");
 
 const prisma = new PrismaClient();
 
@@ -14,7 +15,6 @@ exports.login = async (req, res) => {
 
     res.status(200).send({ msg: "User inserted.", user});
   } catch (e) {
-    console.error("Full error:", JSON.stringify(e, Object.getOwnPropertyNames(e), 2));
-    res.status(500).send({ error: `Error occured: ${e.message || e}`});
+    errorHandler(e, res, "logging in")
   }
 }
