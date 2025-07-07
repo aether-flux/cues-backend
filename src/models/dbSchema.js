@@ -1,6 +1,6 @@
-const { boolean, integer, pgTable, serial, timestamp, varchar, text } = require("drizzle-orm/pg-core");
+import { boolean, integer, pgTable, serial, timestamp, varchar, text } from "drizzle-orm/pg-core";
 
-exports.users = pgTable('users', {
+export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   username: varchar('username', { length: 255 }).notNull().unique(),
   email: varchar('email', { length: 255 }).notNull().unique(),
@@ -8,14 +8,14 @@ exports.users = pgTable('users', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
-exports.projects = pgTable('projects', {
+export const projects = pgTable('projects', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull().unique(),
   userId: integer('user_id').notNull().references(() => users.id),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
-exports.tasks = pgTable('tasks', {
+export const tasks = pgTable('tasks', {
   id: serial('id').primaryKey(),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),

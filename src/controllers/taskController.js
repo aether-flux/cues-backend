@@ -1,19 +1,19 @@
-const { PrismaClient } = require("../generated/prisma");
-const { errorHandler } = require("../utils/errorHandler");
+import { PrismaClient } from "../generated/prisma/index.js";
+import { errorHandler } from "../utils/errorHandler.js";
 
 const prisma = new PrismaClient();
 
-exports.getTasks = async (req, res) => {
+export const getTasks = async (req, res) => {
   try {
     const taskData = await prisma.task.findMany();
 
-    res.status(200).send({ message: "Records fetched", task: taskData });
+    res.status(200).send({ message: "Records fetched", tasks: taskData });
   } catch (e) {
     errorHandler(e, res, "fetching all tasks");
   }
 };
 
-exports.getTask = async (req, res) => {
+export const getTask = async (req, res) => {
   try {
     const { id } = req.params;
     const task = await prisma.task.findUnique({ where: { id: parseInt(id) } });
@@ -24,11 +24,11 @@ exports.getTask = async (req, res) => {
   }
 };
 
-exports.newTask = async (req, res) => {
+export const newTask = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, projectId } = req.body;
     const task = await prisma.task.create({
-      data: { title, description, projectId: 2 },
+      data: req.body,
     });
 
     res.status(200).send({ message: "Task created", task });
@@ -37,7 +37,7 @@ exports.newTask = async (req, res) => {
   }
 };
 
-exports.updateTask = async (req, res) => {
+export const updateTask = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const updTask = await prisma.task.update({
@@ -51,7 +51,7 @@ exports.updateTask = async (req, res) => {
   }
 };
 
-exports.deleteTask = async (req, res) => {
+export const deleteTask = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const delTask = await prisma.task.delete({ where: { id } });

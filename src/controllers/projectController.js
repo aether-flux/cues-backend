@@ -1,9 +1,9 @@
-const { PrismaClient } = require("../generated/prisma");
-const { errorHandler } = require("../utils/errorHandler");
+import { PrismaClient } from "../generated/prisma/index.js";
+import { errorHandler } from "../utils/errorHandler.js";
 
 const prisma = new PrismaClient();
 
-exports.getAllProj = async (req, res) => {
+export const getAllProj = async (req, res) => {
   try {
     const projData = await prisma.project.findMany();
 
@@ -13,7 +13,7 @@ exports.getAllProj = async (req, res) => {
   }
 };
 
-exports.getProj = async (req, res) => {
+export const getProj = async (req, res) => {
   try {
     const { id } = req.params;
     const proj = await prisma.project.findUnique({ where: { id: parseInt(id) } });
@@ -24,7 +24,7 @@ exports.getProj = async (req, res) => {
   }
 };
 
-exports.newProj = async (req, res) => {
+export const newProj = async (req, res) => {
   try {
     const { name } = req.body;
 
@@ -42,7 +42,7 @@ exports.newProj = async (req, res) => {
   }
 };
 
-exports.updateProj = async (req, res) => {
+export const updateProj = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
 
@@ -57,7 +57,7 @@ exports.updateProj = async (req, res) => {
   }
 };
 
-exports.deleteProj = async (req, res) => {
+export const deleteProj = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const delProj = await prisma.project.delete({ where: { id } });
