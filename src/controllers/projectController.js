@@ -19,7 +19,7 @@ export const getProj = async (req, res) => {
     const userId = req.user.id;
     const proj = await prisma.project.findUnique({ where: { id: parseInt(id) } });
 
-    if (proj.userId !== userId) return res.status(403).send({ error: "unauthenticated access", message: "User is not allowed access to other users' resources." });
+    if (proj.userId !== userId) return res.status(404).send({ error: "resource not found", message: "Requested resource does not exist." });
 
     res.status(200).send({ message: "Record fetched", project: proj });
   } catch (e) {
