@@ -42,6 +42,7 @@ model Task {
   description String?
   isDone      Boolean  @default(false)
   priority    String?
+  due         DateTime?
   projectId   Int
   createdAt   DateTime @default(now())
 
