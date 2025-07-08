@@ -3,7 +3,7 @@ import { env } from 'rensa/utils';
 import { homeIndex } from './controllers/homeController.js';
 import fs from 'fs';
 import path from 'path';
-import { login, signup } from './controllers/authController.js';
+import { login, refresh, signup } from './controllers/authController.js';
 import {
   newProj,
   getAllProj,
@@ -18,6 +18,7 @@ import {
   updateTask,
   deleteTask
 } from './controllers/taskController.js';
+import { requireAuth } from './layers/requireAuth.js';
 
 
 export const app = new Rensa();
@@ -25,7 +26,12 @@ const port = process.env.PORT || 3000;
 
 // Layers (Built-in)
 env();
+app.useBuiltin("cookies");
 app.useBuiltin("logger");
+
+// Layers
+app.use(requireAuth, { scope: ["/api/projects", "/api/tasks"] });
+
 
 // Routes
 app.get({ path: "/" }, homeIndex);
@@ -33,6 +39,7 @@ app.get({ path: "/" }, homeIndex);
 // Auth routes
 app.post({ path: "/api/auth/signup" }, signup);
 app.post({ path: "/api/auth/login" }, login);
+app.post({ path: "/api/auth/refresh" }, refresh);
 
 // Project routes
 app.get({ path: "/api/projects" }, getAllProj);

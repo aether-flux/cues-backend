@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export const getAllProj = async (req, res) => {
   try {
-    const projData = await prisma.project.findMany();
+    const projData = await prisma.project.findMany({ where: { userId: req.user.id }});
 
     res.status(200).send({ message: "Records fetched", projects: projData });
   } catch (e) {
@@ -16,7 +16,10 @@ export const getAllProj = async (req, res) => {
 export const getProj = async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.id;
     const proj = await prisma.project.findUnique({ where: { id: parseInt(id) } });
+
+    if (proj.userId !== userId) return res.status(403).send({ error: "unauthenticated access", message: "User is not allowed access to other users' resources." });
 
     res.status(200).send({ message: "Record fetched", project: proj });
   } catch (e) {
