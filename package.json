@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "postInstall": "prisma generate",
+    "build": "prisma generate",
     "dev": "rensa dev",
     "start": "rensa dev"
   },
