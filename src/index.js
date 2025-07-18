@@ -29,6 +29,7 @@ const port = process.env.PORT || 3000;
 env();
 app.useBuiltin("cookies");
 app.useBuiltin("logger");
+app.useBuiltin("rate limiter", 60000, 100);
 
 // Layers
 app.use(corsLayer);
