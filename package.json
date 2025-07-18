@@ -4,7 +4,9 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "dev": "node src/index.js"
+    "postInstall": "prisma generate",
+    "dev": "rensa dev",
+    "start": "rensa dev"
   },
   "keywords": [],
   "author": "",
