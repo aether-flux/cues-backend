@@ -34,14 +34,23 @@ export const signup = async (req, res) => {
     const refreshToken = jwt.sign(
       { id: user.id, email: user.email, username: user,username },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' },
+      { expiresIn: '180d' },
     );
 
-    // Store refresh token in cookie
-    const isProd = process.env.NODE_ENV === "production";
-    res.setHeader("Set-Cookie", `refreshToken=${refreshToken}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}; ${isProd ? 'Secure;' : ''}`);
+    const isCli = req.headers["user-agent"]?.includes("Cues-CLI");
 
-    res.status(201).send({ message: "Signup successful.", accessToken });
+    if (isCli) {
+      // Send refresh token to CLI
+      return res.status(201).send({ message: "Signup successful.", accessToken, refreshToken });
+
+    } else {
+      // Store refresh token in cookie
+      const isProd = process.env.NODE_ENV === "production";
+      res.setHeader("Set-Cookie", `refreshToken=${refreshToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${6 * 30 * 24 * 60 * 60}; ${isProd ? 'Secure;' : ''}`);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+
+      res.status(201).send({ message: "Signup successful.", accessToken });
+    }
   } catch (e) {
     errorHandler(e, res, "signing up");
   }
@@ -82,24 +91,46 @@ export const login = async (req, res) => {
     const refreshToken = jwt.sign(
       { id: user.id, email: user.email, username: user,username },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' },
+      { expiresIn: '180d' },
     );
 
-    // Store refresh token in cookie
-    const isProd = process.env.NODE_ENV === "production";
-    res.setHeader("Set-Cookie", `refreshToken=${refreshToken}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}; ${isProd ? 'Secure;' : ''}`);
+    const isCli = req.headers["user-agent"]?.includes("Cues-CLI");
 
-    res.status(200).send({ message: "Login successful.", accessToken });
+    if (isCli) {
+      // Send refresh token to CLI
+      return res.status(201).send({ message: "Login successful.", accessToken, refreshToken });
+
+    } else {
+      // Store refresh token in cookie
+      const isProd = process.env.NODE_ENV === "production";
+      res.setHeader("Set-Cookie", `refreshToken=${refreshToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${6 * 30 * 24 * 60 * 60}; ${isProd ? 'Secure;' : ''}`);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+
+      res.status(201).send({ message: "Login successful.", accessToken });
+    }
   } catch (e) {
     errorHandler(e, res, "logging in")
   }
 }
 
-export const refresh = (req, res) => {
-  const token = req.cookies.refresh_token;
-  if (!token) return res.status(401).send({ error: "missing refresh token", message: "Refresh token missing." });
+export const logout = (req, res) => {
+  const isProd = process.env.NODE_ENV === "production";
+  res.setHeader("Set-Cookie", [`refreshToken=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; ${isProd ? 'Secure' : ''}`]);
+  res.status(204).send({ message: "User data cleared.", success: true });
+}
 
+export const refresh = (req, res) => {
   try {
+    let token;
+
+    if (req.headers["user-agent"]?.includes("Cues-CLI")) {
+      token = req.body.refresh_token;
+    } else {
+      token = req.cookies.refreshToken;
+    }
+
+    if (!token) return res.status(401).send({ error: "missing refresh token", message: "Refresh token missing." });
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const newAccessToken = jwt.sign(
       { id: decoded.id, email: decoded.email, username: decoded.username },
@@ -110,5 +141,22 @@ export const refresh = (req, res) => {
     res.status(200).send({ accessToken: newAccessToken });
   } catch (e) {
     res.status(403).send({ error: "invalid refresh token", message: "Invalid or expired refresh token." });
+  }
+}
+
+export const getUser = async (req, res) => {
+  const id = req.user.id;
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id } });
+
+    res.status(200).send({ message: "User found.", user: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      createdAt: user.createdAt,
+    } });
+  } catch (e) {
+    errorHandler(e, res, "fetching user details");
   }
 }

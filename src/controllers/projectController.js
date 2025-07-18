@@ -67,7 +67,20 @@ export const deleteProj = async (req, res) => {
     const id = parseInt(req.params.id);
     const userId = req.user.id;
 
-    const delProj = await prisma.project.delete({ where: { id, userId } });
+    // const delProj = await prisma.project.delete({ where: { id, userId } });
+
+    const [_, delProj] = await prisma.$transaction([
+      prisma.task.deleteMany({
+        where: {
+          projectId: id
+        }
+      }),
+      prisma.project.delete({
+        where: {
+          id, userId
+        }
+      })
+    ]);
 
     res.status(200).send({ message: "Project deleted", project: delProj });
   } catch (e) {

@@ -3,7 +3,7 @@ import { env } from 'rensa/utils';
 import { homeIndex } from './controllers/homeController.js';
 import fs from 'fs';
 import path from 'path';
-import { login, refresh, signup } from './controllers/authController.js';
+import { getUser, login, logout, refresh, signup } from './controllers/authController.js';
 import {
   newProj,
   getAllProj,
@@ -19,6 +19,7 @@ import {
   deleteTask
 } from './controllers/taskController.js';
 import { requireAuth } from './layers/requireAuth.js';
+import { corsLayer } from './layers/cors.js';
 
 
 export const app = new Rensa();
@@ -30,7 +31,8 @@ app.useBuiltin("cookies");
 app.useBuiltin("logger");
 
 // Layers
-app.use(requireAuth, { scope: ["/api/projects", "/api/tasks"] });
+app.use(corsLayer);
+app.use(requireAuth, { scope: ["/api/projects", "/api/tasks", "/api/auth/user"] });
 
 
 // Routes
@@ -39,7 +41,9 @@ app.get({ path: "/" }, homeIndex);
 // Auth routes
 app.post({ path: "/api/auth/signup" }, signup);
 app.post({ path: "/api/auth/login" }, login);
+app.post({ path: "/api/auth/logout" }, logout);
 app.post({ path: "/api/auth/refresh" }, refresh);
+app.get({ path: "/api/auth/user" }, getUser);
 
 // Project routes
 app.get({ path: "/api/projects" }, getAllProj);
