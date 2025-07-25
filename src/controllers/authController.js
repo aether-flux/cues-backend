@@ -46,7 +46,7 @@ export const signup = async (req, res) => {
     } else {
       // Store refresh token in cookie
       // const isProd = process.env.NODE_ENV === "production";
-      res.setHeader("Set-Cookie", `refreshToken=${refreshToken}; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=${6 * 30 * 24 * 60 * 60};`);
+      res.setHeader("Set-Cookie", `refreshToken=${refreshToken}; Path=/; HttpOnly; SameSite=None; Secure; Partitioned; Max-Age=${6 * 30 * 24 * 60 * 60};`);
       res.setHeader("Access-Control-Allow-Credentials", "true");
 
       res.status(201).send({ message: "Signup successful.", accessToken });
@@ -103,7 +103,7 @@ export const login = async (req, res) => {
     } else {
       // Store refresh token in cookie
       // const isProd = process.env.NODE_ENV === "production";
-      res.setHeader("Set-Cookie", `refreshToken=${refreshToken}; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=${6 * 30 * 24 * 60 * 60};`);
+      res.setHeader("Set-Cookie", `refreshToken=${refreshToken}; Path=/; HttpOnly; SameSite=None; Secure; Partitioned; Max-Age=${6 * 30 * 24 * 60 * 60};`);
       res.setHeader("Access-Control-Allow-Credentials", "true");
 
       res.status(201).send({ message: "Login successful.", accessToken });
